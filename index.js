@@ -1,8 +1,9 @@
-import fetch from 'node-fetch';  
+import fetch from 'node-fetch';
 import express from 'express';
 import cors from 'cors';
 
 const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,7 +32,6 @@ app.post('/claim', async (req, res) => {
         const password = randompass();
         const name = `[ RAM UNLI ] ${username.toUpperCase()}`;
 
-        // Membuat akun pengguna
         const createUserResponse = await fetch(`${domain}/api/application/users`, {
             method: "POST",
             headers: {
@@ -54,7 +54,6 @@ app.post('/claim', async (req, res) => {
 
         const user = userData.attributes;
 
-        // Mengambil informasi telur (egg) untuk server
         const eggResponse = await fetch(`${domain}/api/application/nests/5/eggs/${eggsnya}`, {
             method: "GET",
             headers: {
@@ -67,7 +66,6 @@ app.post('/claim', async (req, res) => {
         const eggData = await eggResponse.json();
         const startup_cmd = eggData.attributes.startup;
 
-        // Membuat server
         const createServerResponse = await fetch(`${domain}/api/application/servers`, {
             method: "POST",
             headers: {
@@ -130,6 +128,10 @@ app.post('/claim', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: "Terjadi kesalahan!", error: error.message });
     }
+});
+
+app.get('/claim', (req, res) => {
+    res.status(405).json({ message: "Method Not Allowed, gunakan POST" });
 });
 
 const PORT = 3000;
