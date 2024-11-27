@@ -15,12 +15,25 @@ app.use(cors({
 
 app.set('json spaces', 2);
 
-const apikey = "ptla_nokjOLuhVyCMgKmsKaYPixOXMfmJUZ5bSO14M6TQs8G";
-const domain = "https://flantnetwork.live";
-const eggsnya = "16";
+const apikey = "ptla_oim1qdKqm2TLBU1JBAP8gzAQuXYS4rX6fOe4PcbLujy";
+const domain = "https://client1.xlanznet.site";
+const eggsnya = "15";
 const location = "1";
 
 const randompass = () => Math.random().toString(36).slice(-8);
+
+app.use((req, res, next) => {
+    if (req.path === '/index.js') {
+        res.status(403).send('Forbidden');
+    } else {
+        next();
+    }
+});
+
+app.use(express.static("public"));
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.post('/claim', async (req, res) => {
     try {
@@ -112,7 +125,7 @@ app.post('/claim', async (req, res) => {
         const server = serverData.attributes;
 
         return res.status(200).json({
-            message: "Akun dan server berhasil dibuat!",
+            message: "Accounts Is Created",
             user: {
                 username: user.username,
                 password,
@@ -131,7 +144,7 @@ app.post('/claim', async (req, res) => {
 });
 
 app.get('/claim', (req, res) => {
-    res.status(405).json({ message: "Method Not Allowed, gunakan POST" });
+    res.status(405).json({ message: "Method Not Allowed" });
 });
 
 const PORT = 3000;
