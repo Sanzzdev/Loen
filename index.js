@@ -1,7 +1,6 @@
 const cache = require('memory-cache'); 
 const express = require('express');
 const fetch = require('node-fetch');
-const axios = require('axios');
 const cors = require('cors'); 
 
 const app = express();
