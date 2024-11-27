@@ -1,17 +1,9 @@
-const cache = require('memory-cache'); 
 const express = require('express');
 const fetch = require('node-fetch');
-const cors = require('cors'); 
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(cors({
-    origin: '*', 
-    methods: ['GET', 'POST'], 
-    allowedHeaders: ['Content-Type', 'Authorization'] 
-}));
 
 app.set('json spaces', 2);
 
