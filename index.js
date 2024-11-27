@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 
+
 const app = express();
 
 app.use(express.json());
@@ -22,29 +23,6 @@ const eggsnya = "15";
 const location = "1";
 
 const randompass = () => Math.random().toString(36).slice(-8);
-
-const ipClaimData = {}; 
-const checkIpClaimLimit = (req, res, next) => {
-    const ip = req.ip;
-    
-    if (!ipClaimData[ip]) {
-        ipClaimData[ip] = { claims: 0, lastClaimTime: Date.now() };
-    }
-
-    const timeDiff = Date.now() - ipClaimData[ip].lastClaimTime;
-    if (timeDiff > 7 * 24 * 60 * 60 * 1000) { 
-        ipClaimData[ip].claims = 0;
-        ipClaimData[ip].lastClaimTime = Date.now();
-    }
-    if (ipClaimData[ip].claims >= 2) {
-        return res.status(429).json({ message: "You can only claim twice per week." });
-    }
-
-    ipClaimData[ip].claims += 1; 
-    next();
-};
-
-app.use(checkIpClaimLimit);
 
 app.use((req, res, next) => {
     if (req.path === '/index.js') {
