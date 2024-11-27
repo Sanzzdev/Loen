@@ -1,110 +1,136 @@
+const cache = require('memory-cache'); 
 const express = require('express');
+const fetch = require('node-fetch');
 const axios = require('axios');
-const cors = require('cors');
-const crypto = require('crypto');
+const cors = require('cors'); 
+
 const app = express();
-const port = 3000;
-
-const domain = 'https://flantnetwork.live';
-const apikey = 'ptla_nokjOLuhVyCMgKmsKaYPixOXMfmJUZ5bSO14M6TQs8G';
-
-const eggsnya = '16';
-const location = '1';
-const creator = 'xlanzdev';
-
-const generateRandomPassword = (length = 12) => {
-    return crypto.randomBytes(length / 2).toString('hex');
-};
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: '*', 
+    methods: ['GET', 'POST'], 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 
-app.get('/claim', async (req, res) => {
-    const { usernm } = req.query;
+app.set('json spaces', 2);
 
-    if (!usernm) {
-        return res.status(400).json({ error: 'Missing "usernm" parameter.' });
-    }
+const apikey = "ptla_nokjOLuhVyCMgKmsKaYPixOXMfmJUZ5bSO14M6TQs8G";
+const domain = "https://flantnetwork.live";
+const eggsnya = "16";
+const location = "1";
 
-    const last_name = usernm.slice(-3);
-    const password = generateRandomPassword(); 
-    const email = `${usernm}@express.com`;
 
+const randompass = () => Math.random().toString(36).slice(-8);
+
+app.post('/claim', async (req, res) => {
     try {
-        const userResponse = await axios.post(`${domain}/api/application/users`, {
-            username: usernm,
-            first_name: usernm,
-            last_name: last_name,
-            email: email,
-            password: password,
-            root_admin: false,
-            language: 'en'
-        }, {
+        const { username } = req.body;
+
+        if (!username) return res.status(400).json({ message: "Parameter 'username' wajib diisi!" });
+
+        const email = `${username}@express.site`;
+        const password = randompass();
+        const name = `[ RAM UNLI ] ${username.toUpperCase()}`;
+
+        const createUserResponse = await fetch(`${domain}/api/application/users`, {
+            method: "POST",
             headers: {
                 "Accept": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${apikey}`,
-                "Content-Type": "application/json"
-            }
+            },
+            body: JSON.stringify({
+                email,
+                username,
+                first_name: username,
+                last_name: username,
+                language: "en",
+                password,
+            }),
         });
 
-        if (userResponse.status === 201) {
-            const userData = userResponse.data.attributes;
-            const serverResponse = await axios.post(`${domain}/api/application/servers`, {
-                name: `${usernm}_server`,
-                user: userData.id,
-                egg: eggsnya,
-                docker_image: 'ghcr.io/pterodactyl/yolks:nodejs_18',
-                startup: 'npm start',
-                limits: {
-                    memory: 0,
-                    swap: 0,
-                    disk: 0,
-                    io: 500,
-                    cpu: 0
-                },
+        const userData = await createUserResponse.json();
+        if (userData.errors) return res.status(400).json(userData.errors[0]);
+
+        const user = userData.attributes;
+        const eggResponse = await fetch(`${domain}/api/application/nests/5/eggs/${eggsnya}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apikey}`,
+            },
+        });
+
+        const eggData = await eggResponse.json();
+        const startup_cmd = eggData.attributes.startup;
+
+        const createServerResponse = await fetch(`${domain}/api/application/servers`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apikey}`,
+            },
+            body: JSON.stringify({
+                name,
+                description: `Expired Date: ${(new Date()).toLocaleDateString('id-ID')}`,
+                user: user.id,
+                egg: parseInt(eggsnya),
+                docker_image: "ghcr.io/parkervcp/yolks:nodejs_19",
+                startup: startup_cmd,
                 environment: {
-                    STARTUP_CMD: 'npm start'
+                    INST: "npm",
+                    USER_UPLOAD: "0",
+                    AUTO_UPDATE: "0",
+                    CMD_RUN: "npm start",
+                },
+                limits: {
+                    memory: "0",
+                    swap: 0,
+                    disk: "0",
+                    io: 500,
+                    cpu: "0",
                 },
                 feature_limits: {
-                    databases: 1,
-                    backups: 2
+                    databases: 5,
+                    backups: 5,
+                    allocations: 1,
                 },
                 deploy: {
-                    locations: [location],
+                    locations: [parseInt(location)],
                     dedicated_ip: false,
-                    port_range: []
-                }
-            }, {
-                headers: {
-                    "Accept": "application/json",
-                    "Authorization": `Bearer ${apikey}`,
-                    "Content-Type": "application/json"
-                }
-            });
+                    port_range: [],
+                },
+            }),
+        });
 
-            if (serverResponse.status === 201) {
-                const serverData = serverResponse.data.attributes;
+        const serverData = await createServerResponse.json();
+        if (serverData.errors) return res.status(400).json(serverData.errors[0]);
 
-                return res.json({
-                    creator: creator,
-                    username: usernm,
-                    password: password,
-                    domain: domain
-                });
-            } else {
-                return res.status(500).json({ error: 'Failed to create server', details: serverResponse.data });
-            }
-        } else {
-            return res.status(500).json({ error: 'Failed to create user', details: userResponse.data });
-        }
+        const server = serverData.attributes;
+        return res.status(200).json({
+            message: "Akun dan server berhasil dibuat!",
+            user: {
+                username: user.username,
+                password,
+                email,
+            },
+            server: {
+                id: server.id,
+                name: server.name,
+                description: server.description,
+            },
+        });
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to connect to the API', details: error.message });
+        console.error(error);
+        res.status(500).json({ message: "Terjadi kesalahan!", error: error.message });
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server is listening at http://localhost:${port}`);
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
