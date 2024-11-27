@@ -1,9 +1,16 @@
-const express = require('express');
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';  
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.set('json spaces', 2);
 
@@ -11,7 +18,6 @@ const apikey = "ptla_nokjOLuhVyCMgKmsKaYPixOXMfmJUZ5bSO14M6TQs8G";
 const domain = "https://flantnetwork.live";
 const eggsnya = "16";
 const location = "1";
-
 
 const randompass = () => Math.random().toString(36).slice(-8);
 
@@ -25,6 +31,7 @@ app.post('/claim', async (req, res) => {
         const password = randompass();
         const name = `[ RAM UNLI ] ${username.toUpperCase()}`;
 
+        // Membuat akun pengguna
         const createUserResponse = await fetch(`${domain}/api/application/users`, {
             method: "POST",
             headers: {
@@ -46,6 +53,8 @@ app.post('/claim', async (req, res) => {
         if (userData.errors) return res.status(400).json(userData.errors[0]);
 
         const user = userData.attributes;
+
+        // Mengambil informasi telur (egg) untuk server
         const eggResponse = await fetch(`${domain}/api/application/nests/5/eggs/${eggsnya}`, {
             method: "GET",
             headers: {
@@ -58,6 +67,7 @@ app.post('/claim', async (req, res) => {
         const eggData = await eggResponse.json();
         const startup_cmd = eggData.attributes.startup;
 
+        // Membuat server
         const createServerResponse = await fetch(`${domain}/api/application/servers`, {
             method: "POST",
             headers: {
@@ -102,6 +112,7 @@ app.post('/claim', async (req, res) => {
         if (serverData.errors) return res.status(400).json(serverData.errors[0]);
 
         const server = serverData.attributes;
+
         return res.status(200).json({
             message: "Akun dan server berhasil dibuat!",
             user: {
