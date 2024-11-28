@@ -2,8 +2,6 @@ import fetch from 'node-fetch';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-
-
 const app = express();
 
 app.use(express.json());
@@ -17,8 +15,8 @@ app.use(cors({
 
 app.set('json spaces', 2);
 
-const apikey = "ptla_oim1qdKqm2TLBU1JBAP8gzAQuXYS4rX6fOe4PcbLujy";
-const domain = "https://client1.xlanznet.site";
+const apikey = "ptla_Gzs8y6dC3UM9cFImxrzSPpYtnzVL4J35usrjXzyHHTL";
+const domain = "https://server.xlanznet.site";
 const eggsnya = "15";
 const location = "1";
 
@@ -37,7 +35,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.post('/claim', async (req, res) => {
+app.post('/Create', async (req, res) => {
     try {
         const { username } = req.body;
 
@@ -145,7 +143,7 @@ app.post('/claim', async (req, res) => {
     }
 });
 
-app.get('/claim', (req, res) => {
+app.get('/Create', (req, res) => {
     res.status(405).json({ message: "Method Not Allowed" });
 });
 
