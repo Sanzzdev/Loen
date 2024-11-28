@@ -103,14 +103,14 @@ opacity: 1;
 <p><strong>Username :</strong> <span id="accountUsername" class="text-gray-500"></span></p>
 <p><strong>Email :</strong> <span id="accountEmail" class="text-gray-500"></span></p>
 <p><strong>Password :</strong> <span id="accountPassword" class="text-gray-500"></span></p>
-<p><strong>Domain : https://client1.xlanznet.site</strong> <span class="text-gray-500"></span></p>
+<p><strong>Domain : https://server.xlanznet.site</strong> <span class="text-gray-500"></span></p>
 <div class="flex items-center my-4">
 <div class="border-t border-gray-300 flex-grow"></div>
 <span class="mx-3 text-gray-400">Xlanzdev</span>
 <div class="border-t border-gray-300 flex-grow"></div>
 </div>
 <div class="mt-4 flex space-x-4">
-<a id="loginButton" href="https://client1.xlanznet.site" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full sm:w-auto">
+<a id="loginButton" href="https://server.xlanznet.site" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full sm:w-auto">
 <i class="fas fa-sign-in-alt mr-6"></i>Login</a>
 <button id="copyButton" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full sm:w-auto" onclick="copyAccountInfo()">
 <i class="fas fa-copy mr-3"></i> Copy
@@ -162,7 +162,7 @@ claimButton.innerHTML = 'Loading <span class="dot-pulse"></span>';
 claimButton.disabled = true;
 
 try {
-const response = await fetch('https://ptero.xlanznet.site/claim', {
+const response = await fetch('https://ptero.xlanznet.site/Create', {
 method: 'POST',
 headers: {
 'Content-Type': 'application/json'
